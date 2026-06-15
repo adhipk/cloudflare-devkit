@@ -12,14 +12,14 @@ type CurlResult = {
 };
 
 const endpoints: Endpoint[] = [
-  { label: "static", url: "https://static.adhipk.dev/" },
-  { label: "api", url: "https://api.adhipk.dev/" },
-  { label: "api health", url: "https://api.adhipk.dev/health" },
-  { label: "d1", url: "https://d1.adhipk.dev/" },
-  { label: "d1 health", url: "https://d1.adhipk.dev/health" },
-  { label: "r2", url: "https://r2.adhipk.dev/" },
-  { label: "r2 health", url: "https://r2.adhipk.dev/health" },
-  { label: "cron", url: "https://cron.adhipk.dev/" },
+  { label: "static", url: "https://cf-test-static-html.adhipk.dev/" },
+  { label: "api", url: "https://cf-test-hono-api.adhipk.dev/" },
+  { label: "api health", url: "https://cf-test-hono-api.adhipk.dev/health" },
+  { label: "d1", url: "https://cf-test-hono-d1-api.adhipk.dev/" },
+  { label: "d1 health", url: "https://cf-test-hono-d1-api.adhipk.dev/health" },
+  { label: "r2", url: "https://cf-test-hono-r2-api.adhipk.dev/" },
+  { label: "r2 health", url: "https://cf-test-hono-r2-api.adhipk.dev/health" },
+  { label: "cron", url: "https://cf-test-cron-worker.adhipk.dev/" },
 ];
 
 const results = await Promise.all(endpoints.map(curlEndpoint));

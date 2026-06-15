@@ -1,13 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "cf-devkit-static-html",
+  "name": "cf-test-static-html",
   "compatibility_date": "2026-06-01",
   "assets": {
     "directory": "./public"
   },
   "routes": [
     {
-      "pattern": "static.adhipk.dev",
+      "pattern": "cf-test-static-html.adhipk.dev",
       "custom_domain": true
     }
   ]

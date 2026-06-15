@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "cf-devkit-cron-worker",
+  "name": "cf-test-cron-worker",
   "main": "src/index.ts",
   "compatibility_date": "2026-06-01",
   "triggers": {
@@ -8,7 +8,7 @@
   },
   "routes": [
     {
-      "pattern": "cron.adhipk.dev",
+      "pattern": "cf-test-cron-worker.adhipk.dev",
       "custom_domain": true
     }
   ]
