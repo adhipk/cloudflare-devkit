@@ -1,0 +1,35 @@
+name: deploy project
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: Project directory under projects/
+        required: true
+        type: string
+      command:
+        description: Wrangler command to run
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - deploy --dry-run
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - name: Install project dependencies
+        working-directory: projects/${{ inputs.project }}
+        run: bun install
+      - name: Run Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: projects/${{ inputs.project }}
+          command: ${{ inputs.command }}
