@@ -1,0 +1,17 @@
+{
+  "name": "cloudflare-devkit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "list": "bun scripts/list.ts",
+    "new": "bun scripts/new.ts",
+    "deploy": "bun scripts/deploy.ts",
+    "dryrun": "bun scripts/dryrun.ts",
+    "check": "bun scripts/check.ts",
+    "validate": "bun scripts/validate.ts",
+    "test": "bun run check && bun run validate"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
