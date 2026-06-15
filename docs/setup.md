@@ -20,17 +20,17 @@ Verify authentication:
 bunx wrangler whoami
 ```
 
-## Create a test project
+## Explore recipes
 
 ```bash
-bun run new hono-api hello-worker
-cd projects/hello-worker
-bun install
+bun run list
 ```
 
-Run locally:
+Run a recipe locally:
 
 ```bash
+cd recipes/hono-api
+bun install
 bun run dev
 ```
 
@@ -51,19 +51,19 @@ bun run validate
 Run everything:
 
 ```bash
-bun test
+bun run test
 ```
 
-Dry-run a generated project:
+Dry-run a recipe or project:
 
 ```bash
-cd ../../
-bun run dryrun hello-worker
+bun run dryrun recipes/hono-api
+bun run dryrun projects/hello-worker
 ```
 
 ## Local deploy
 
-From inside the project:
+From inside a recipe or project:
 
 ```bash
 bun run deploy
@@ -72,7 +72,8 @@ bun run deploy
 Or from the repo root:
 
 ```bash
-bun run deploy hello-worker
+bun run deploy recipes/hono-api
+bun run deploy recipes/static-html
 ```
 
 ## GitHub Actions deployment
@@ -103,37 +104,25 @@ Run the workflow:
 First run:
 
 ```txt
-project: hello-worker
+target: recipes/hono-api
 command: deploy --dry-run
 ```
 
 Then:
 
 ```txt
-project: hello-worker
+target: recipes/hono-api
 command: deploy
 ```
 
-## Generated projects
+## Recipe directories
 
-Projects are generated into:
-
-```txt
-projects/<project-name>
-```
-
-Currently `projects/` is gitignored.
-
-For GitHub deployments either:
+Each recipe is a working example and a copyable template:
 
 ```txt
-1. Remove projects/ from .gitignore
+recipes/<recipe-name>
 ```
 
-or
+Use `projects/` for committed deployment tests or service-specific examples.
 
-```txt
-2. Move the generated project into its own repository
-```
-
-The second approach is recommended for long-term use.
+For custom domains, add route entries to the target `wrangler.jsonc` only after the zone is configured in Cloudflare. See `docs/test-domains.md`.

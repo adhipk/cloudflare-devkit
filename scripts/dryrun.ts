@@ -1,24 +1,15 @@
-import { existsSync } from "node:fs";
 import path from "node:path";
 
-const [, , projectName, outputRoot = "projects"] = process.argv;
+const [, , target] = process.argv;
 
-if (!projectName) {
-  console.error("Usage: bun run dryrun <project-name> [output-root]");
+if (!target) {
+  console.error("Usage: bun run dryrun <recipe-or-project-path>");
   process.exit(1);
 }
 
 const repoRoot = path.resolve(new URL("..", import.meta.url).pathname);
-const projectDir = path.join(repoRoot, outputRoot, projectName);
-const configPath = path.join(projectDir, "wrangler.jsonc");
-
-if (!existsSync(configPath)) {
-  console.error(`Missing wrangler.jsonc: ${configPath}`);
-  process.exit(1);
-}
-
-const proc = Bun.spawn(["bunx", "wrangler", "deploy", "--dry-run", "--config", configPath], {
-  cwd: projectDir,
+const proc = Bun.spawn(["bun", "scripts/deploy.ts", target, "deploy", "--dry-run"], {
+  cwd: repoRoot,
   stdout: "inherit",
   stderr: "inherit",
   stdin: "inherit",

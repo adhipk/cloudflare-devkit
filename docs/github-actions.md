@@ -2,28 +2,30 @@
 
 This repo supports two deployment modes.
 
-## Monorepo project deploys
+## Monorepo target deploys
 
 Use `.github/workflows/deploy-project.yml`.
 
 It is manual by default. Run it from GitHub Actions and provide:
 
 ```txt
-project: my-api
+target: recipes/hono-api
 command: deploy --dry-run
 ```
 
 Then run again with:
 
 ```txt
-project: my-api
+target: recipes/hono-api
 command: deploy
 ```
 
-The workflow expects the generated project to live at:
+The workflow accepts any checked-in recipe or project directory that contains `package.json` and `wrangler.jsonc`, for example:
 
 ```txt
-projects/<project-name>
+recipes/static-html
+recipes/hono-api
+projects/hello-worker
 ```
 
 ## Standalone project deploys
@@ -56,18 +58,17 @@ CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
 ```
 
-## Recommended first test
+## Recommended first tests
 
 ```bash
-bun run new hono-api hello-worker
-cd projects/hello-worker
-bun install
-bun run dev
+bun run validate
+bun run deploy recipes/hono-api deploy --dry-run
+bun run deploy recipes/static-html deploy --dry-run
 ```
 
-Then use the `deploy project` GitHub Action with:
+Then use the `deploy target` GitHub Action with:
 
 ```txt
-project: hello-worker
+target: recipes/hono-api
 command: deploy --dry-run
 ```
