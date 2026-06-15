@@ -1,1 +1,12 @@
-{"name":"cf-devkit-hono-r2-api","main":"src/index.ts","compatibility_date":"2026-06-01"}
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cf-devkit-hono-r2-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-01",
+  "routes": [
+    {
+      "pattern": "r2.adhipk.dev",
+      "custom_domain": true
+    }
+  ]
+}

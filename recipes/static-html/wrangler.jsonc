@@ -4,5 +4,11 @@
   "compatibility_date": "2026-06-01",
   "assets": {
     "directory": "./public"
-  }
+  },
+  "routes": [
+    {
+      "pattern": "static.adhipk.dev",
+      "custom_domain": true
+    }
+  ]
 }

@@ -5,5 +5,11 @@
   "compatibility_date": "2026-06-01",
   "triggers": {
     "crons": ["*/15 * * * *"]
-  }
+  },
+  "routes": [
+    {
+      "pattern": "cron.adhipk.dev",
+      "custom_domain": true
+    }
+  ]
 }
