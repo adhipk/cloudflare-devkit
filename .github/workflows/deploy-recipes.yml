@@ -1,0 +1,46 @@
+name: deploy recipes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - recipes/**
+      - .github/workflows/deploy-recipes.yml
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: CloudFlare-personal
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - static-html
+          - hono-api
+          - hono-d1-api
+          - hono-r2-api
+          - cron-worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install recipe dependencies
+        working-directory: recipes/${{ matrix.recipe }}
+        run: bun install
+      - name: Generate types
+        working-directory: recipes/${{ matrix.recipe }}
+        run: bun run types --if-present
+      - name: Dry run
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: recipes/${{ matrix.recipe }}
+          command: deploy --dry-run
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: recipes/${{ matrix.recipe }}
+          command: deploy

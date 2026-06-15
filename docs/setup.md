@@ -95,7 +95,13 @@ R2: Edit
 DNS: Edit (only if using domains)
 ```
 
-Run the workflow:
+Recipe deploys run automatically on pushes to `main` that change `recipes/**`:
+
+```txt
+.github/workflows/deploy-recipes.yml
+```
+
+For a one-off recipe or project deploy, run the manual workflow:
 
 ```txt
 .github/workflows/deploy-project.yml
