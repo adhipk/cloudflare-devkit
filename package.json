@@ -1,0 +1,13 @@
+{
+  "name": "cloudflare-devkit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "list": "bun scripts/list.ts",
+    "new": "bun scripts/new.ts",
+    "deploy": "bun scripts/deploy.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
