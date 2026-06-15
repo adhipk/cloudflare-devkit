@@ -29,7 +29,12 @@ jobs:
         run: bun install
       - name: Generate types
         working-directory: ${{ inputs.target }}
-        run: bun run types --if-present
+        run: |
+          if [ "$(bun pm pkg get scripts.types)" != "{}" ]; then
+            bun run types
+          else
+            echo "No types script; skipping."
+          fi
       - name: Run Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
