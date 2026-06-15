@@ -1,42 +1,39 @@
 # Test deployment domains
 
-Use this convention for committed Cloudflare deployment tests:
-
-```txt
-cf-deploy-test-<deployment-type>.adhipk.dev
-```
+These examples use Cloudflare Worker Custom Domains under `adhipk.dev` so deploys do not require a `workers.dev` subdomain.
 
 ## Current test domains
 
 ```txt
-worker        cf-deploy-test-worker.adhipk.dev
-static        cf-deploy-test-static.adhipk.dev
-d1            cf-deploy-test-d1.adhipk.dev
-r2            cf-deploy-test-r2.adhipk.dev
-cron          cf-deploy-test-cron.adhipk.dev
+hello-worker  hello-worker.adhipk.dev
+static        static.adhipk.dev
+api           api.adhipk.dev
+d1            d1.adhipk.dev
+r2            r2.adhipk.dev
+cron          cron.adhipk.dev
 ```
 
-## Wrangler route pattern
+## Wrangler custom domain pattern
 
-For a Worker custom domain, add this to the project `wrangler.jsonc`:
+Cloudflare recommends Custom Domains when the Worker is the origin. In `wrangler.jsonc`, that is represented as a `routes` entry with `custom_domain: true`:
 
 ```jsonc
 "routes": [
   {
-    "pattern": "cf-deploy-test-worker.adhipk.dev",
+    "pattern": "hello-worker.adhipk.dev",
     "custom_domain": true
   }
 ]
 ```
 
-Replace `worker` with the deployment type.
+`adhipk.dev` must be an active Cloudflare zone before these deploys can create or update the custom domains.
 
 ## Validation
 
 After deploy:
 
 ```bash
-curl https://cf-deploy-test-worker.adhipk.dev/health
+curl https://hello-worker.adhipk.dev/health
 ```
 
 Expected response:

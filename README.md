@@ -35,3 +35,18 @@ bun run deploy recipes/hono-api
 ```
 
 The root deploy wrapper stages the target in a temp directory, installs dependencies there, and runs Wrangler from the staged copy so recipes stay clean.
+
+## Test Domains
+
+The checked-in examples deploy to Cloudflare Worker Custom Domains on `adhipk.dev`:
+
+```txt
+hello-worker.adhipk.dev
+static.adhipk.dev
+api.adhipk.dev
+d1.adhipk.dev
+r2.adhipk.dev
+cron.adhipk.dev
+```
+
+`adhipk.dev` must be active in Cloudflare DNS before deploys can attach these domains.
