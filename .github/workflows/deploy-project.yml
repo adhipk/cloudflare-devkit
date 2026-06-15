@@ -19,6 +19,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: CloudFlare-personal
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
