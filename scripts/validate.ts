@@ -1,5 +1,5 @@
-import { mkdtemp, rm, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { copyFile, mkdir, mkdtemp, readdir, rm, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -8,7 +8,7 @@ const recipesDir = path.join(repoRoot, "recipes");
 const tmpRoot = await mkdtemp(path.join(os.tmpdir(), "cloudflare-devkit-"));
 
 const recipeNames = process.argv.slice(2);
-const recipes = recipeNames.length > 0 ? recipeNames : await listRecipes();
+const recipes = recipeNames.length > 0 ? recipeNames : await listDirectories(recipesDir);
 
 try {
   for (const recipe of recipes) {
@@ -24,50 +24,30 @@ async function validateRecipe(recipe: string) {
   const recipeDir = path.join(recipesDir, recipe);
   if (!existsSync(recipeDir)) throw new Error(`Missing recipe: ${recipe}`);
 
-  const projectName = `test-${recipe}`.replaceAll("_", "-");
-  const proc = Bun.spawn(["bun", "scripts/new.ts", recipe, projectName, tmpRoot], {
-    cwd: repoRoot,
-    stdout: "pipe",
-    stderr: "pipe",
-  });
+  const projectDir = path.join(tmpRoot, recipe);
+  await copyDirectory(recipeDir, projectDir);
 
-  const exitCode = await proc.exited;
-  if (exitCode !== 0) {
-    const stderr = await new Response(proc.stderr).text();
-    throw new Error(`Failed to scaffold ${recipe}:\n${stderr}`);
-  }
-
-  const projectDir = path.join(tmpRoot, projectName);
   await assertExists(path.join(projectDir, "package.json"), `${recipe} package.json`);
+  await assertExists(path.join(projectDir, "wrangler.jsonc"), `${recipe} wrangler.jsonc`);
 
-  const hasWranglerConfig = existsSync(path.join(projectDir, "wrangler.jsonc"));
-  const isPlaceholder = recipe === "astro-blog";
+  await assertNoTemplateTokens(projectDir, recipe);
 
-  if (!hasWranglerConfig && !isPlaceholder) {
-    throw new Error(`${recipe} is missing wrangler.jsonc`);
-  }
+  await run(["bun", "install"], projectDir, `Dependency install failed for ${recipe}`);
 
-  if (hasWranglerConfig) {
-    const dryRun = Bun.spawn(["bunx", "wrangler", "deploy", "--dry-run", "--config", "wrangler.jsonc"], {
-      cwd: projectDir,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-
-    const dryRunExitCode = await dryRun.exited;
-    if (dryRunExitCode !== 0) {
-      const stdout = await new Response(dryRun.stdout).text();
-      const stderr = await new Response(dryRun.stderr).text();
-      throw new Error(`Wrangler dry-run failed for ${recipe}:\n${stdout}\n${stderr}`);
-    }
-  }
+  await run(
+    ["bunx", "wrangler", "deploy", "--dry-run", "--config", "wrangler.jsonc"],
+    projectDir,
+    `Wrangler dry-run failed for ${recipe}`,
+  );
 
   console.log(`ok ${recipe}`);
 }
 
-async function listRecipes() {
-  const entries = await Array.fromAsync(new Bun.Glob("*").scan({ cwd: recipesDir, onlyFiles: false }));
-  return entries.sort();
+async function listDirectories(dir: string) {
+  return (await readdir(dir, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
 }
 
 async function assertExists(filePath: string, label: string) {
@@ -75,5 +55,56 @@ async function assertExists(filePath: string, label: string) {
     await stat(filePath);
   } catch {
     throw new Error(`Missing ${label}: ${filePath}`);
+  }
+}
+
+async function assertNoTemplateTokens(dir: string, recipe: string) {
+  const files = await Array.fromAsync(new Bun.Glob("**/*").scan({ cwd: dir, onlyFiles: true }));
+  for (const file of files) {
+    if (file.includes("node_modules/")) continue;
+    const filePath = path.join(dir, file);
+    const content = await Bun.file(filePath).text();
+    if (content.includes("__PROJECT_NAME__") || content.includes("__WORKER_NAME__")) {
+      throw new Error(`${recipe} contains unreplaced template tokens in ${file}`);
+    }
+  }
+}
+
+async function run(command: string[], cwd: string, label: string) {
+  const proc = Bun.spawn(command, {
+    cwd,
+    stdout: "pipe",
+    stderr: "pipe",
+    stdin: "ignore",
+  });
+
+  const exitCode = await proc.exited;
+  if (exitCode !== 0) {
+    const stdout = await new Response(proc.stdout).text();
+    const stderr = await new Response(proc.stderr).text();
+    throw new Error(`${label}:\n${stdout}\n${stderr}`);
+  }
+}
+
+function ignoredPath(source: string) {
+  const basename = path.basename(source);
+  return basename !== "node_modules" && basename !== ".wrangler" && basename !== ".git";
+}
+
+async function copyDirectory(sourceDir: string, targetDir: string) {
+  await mkdir(targetDir, { recursive: true });
+  const entries = await readdir(sourceDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (!ignoredPath(entry.name)) continue;
+
+    const sourcePath = path.join(sourceDir, entry.name);
+    const targetPath = path.join(targetDir, entry.name);
+
+    if (entry.isDirectory()) {
+      await copyDirectory(sourcePath, targetPath);
+    } else if (entry.isFile()) {
+      await copyFile(sourcePath, targetPath);
+    }
   }
 }

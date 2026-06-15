@@ -1,5 +1,5 @@
 {
-  "name": "__PROJECT_NAME__",
+  "name": "hono-api",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",

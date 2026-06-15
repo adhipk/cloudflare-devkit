@@ -1,10 +1,10 @@
-name: deploy project
+name: deploy target
 
 on:
   workflow_dispatch:
     inputs:
-      project:
-        description: Project directory under projects/
+      target:
+        description: Recipe or project directory to deploy
         required: true
         type: string
       command:
@@ -23,13 +23,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-      - name: Install project dependencies
-        working-directory: projects/${{ inputs.project }}
+      - name: Install target dependencies
+        working-directory: ${{ inputs.target }}
         run: bun install
+      - name: Generate types
+        working-directory: ${{ inputs.target }}
+        run: bun run types --if-present
       - name: Run Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: projects/${{ inputs.project }}
+          workingDirectory: ${{ inputs.target }}
           command: ${{ inputs.command }}

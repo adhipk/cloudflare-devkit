@@ -5,7 +5,7 @@ const app = new Hono();
 app.get("/", (c) => {
   return c.json({
     ok: true,
-    service: "__PROJECT_NAME__",
+    service: "hono-api",
   });
 });
 

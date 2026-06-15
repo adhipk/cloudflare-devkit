@@ -1,5 +1,5 @@
 {
-  "name": "__PROJECT_NAME__",
+  "name": "cron-worker",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --test-scheduled",
