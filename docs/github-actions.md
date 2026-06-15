@@ -1,6 +1,22 @@
 # GitHub Actions deployment
 
-This repo supports two deployment modes.
+This repo supports three deployment modes.
+
+## Automatic recipe deploys
+
+Use `.github/workflows/deploy-recipes.yml`.
+
+On pushes to `main` that change `recipes/**`, it deploys every checked-in recipe:
+
+```txt
+recipes/static-html
+recipes/hono-api
+recipes/hono-d1-api
+recipes/hono-r2-api
+recipes/cron-worker
+```
+
+The workflow can also be run manually from GitHub Actions.
 
 ## Monorepo target deploys
 
