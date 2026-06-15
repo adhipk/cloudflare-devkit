@@ -6,6 +6,7 @@
     "list": "bun scripts/list.ts",
     "deploy": "bun scripts/deploy.ts",
     "dryrun": "bun scripts/dryrun.ts",
+    "smoke": "bun scripts/smoke.ts",
     "check": "bun scripts/check.ts",
     "validate": "bun scripts/validate.ts",
     "test": "bun run check && bun run validate"

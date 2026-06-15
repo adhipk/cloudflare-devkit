@@ -1,11 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "cf-devkit-hono-d1-api",
+  "name": "cf-test-hono-d1-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-06-01",
   "routes": [
     {
-      "pattern": "d1.adhipk.dev",
+      "pattern": "cf-test-hono-d1-api.adhipk.dev",
       "custom_domain": true
     }
   ]

@@ -46,11 +46,11 @@ The checked-in examples deploy to Cloudflare Worker Custom Domains on `adhipk.de
 
 ```txt
 hello-worker.adhipk.dev
-static.adhipk.dev
-api.adhipk.dev
-d1.adhipk.dev
-r2.adhipk.dev
-cron.adhipk.dev
+cf-test-static-html.adhipk.dev
+cf-test-hono-api.adhipk.dev
+cf-test-hono-d1-api.adhipk.dev
+cf-test-hono-r2-api.adhipk.dev
+cf-test-cron-worker.adhipk.dev
 ```
 
 `adhipk.dev` must be active in Cloudflare DNS before deploys can attach these domains.

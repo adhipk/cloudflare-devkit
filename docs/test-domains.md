@@ -6,11 +6,11 @@ These examples use Cloudflare Worker Custom Domains under `adhipk.dev` so deploy
 
 ```txt
 hello-worker  hello-worker.adhipk.dev
-static        static.adhipk.dev
-api           api.adhipk.dev
-d1            d1.adhipk.dev
-r2            r2.adhipk.dev
-cron          cron.adhipk.dev
+static        cf-test-static-html.adhipk.dev
+api           cf-test-hono-api.adhipk.dev
+d1            cf-test-hono-d1-api.adhipk.dev
+r2            cf-test-hono-r2-api.adhipk.dev
+cron          cf-test-cron-worker.adhipk.dev
 ```
 
 ## Wrangler custom domain pattern
@@ -33,11 +33,20 @@ Cloudflare recommends Custom Domains when the Worker is the origin. In `wrangler
 After deploy:
 
 ```bash
-curl https://hello-worker.adhipk.dev/health
+bun run smoke
 ```
 
-Expected response:
+The smoke script curls the recipe endpoints and exits non-zero if any endpoint returns a non-2xx status or cannot be reached.
 
-```json
-{"ok":true}
+Expected output:
+
+```txt
+OK static: 200 https://cf-test-static-html.adhipk.dev/
+OK api: 200 https://cf-test-hono-api.adhipk.dev/
+OK api health: 200 https://cf-test-hono-api.adhipk.dev/health
+OK d1: 200 https://cf-test-hono-d1-api.adhipk.dev/
+OK d1 health: 200 https://cf-test-hono-d1-api.adhipk.dev/health
+OK r2: 200 https://cf-test-hono-r2-api.adhipk.dev/
+OK r2 health: 200 https://cf-test-hono-r2-api.adhipk.dev/health
+OK cron: 200 https://cf-test-cron-worker.adhipk.dev/
 ```
