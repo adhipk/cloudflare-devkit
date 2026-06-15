@@ -33,11 +33,20 @@ Cloudflare recommends Custom Domains when the Worker is the origin. In `wrangler
 After deploy:
 
 ```bash
-curl https://hello-worker.adhipk.dev/health
+bun run smoke
 ```
 
-Expected response:
+The smoke script curls the recipe endpoints and exits non-zero if any endpoint returns a non-2xx status or cannot be reached.
 
-```json
-{"ok":true}
+Expected output:
+
+```txt
+OK static: 200 https://static.adhipk.dev/
+OK api: 200 https://api.adhipk.dev/
+OK api health: 200 https://api.adhipk.dev/health
+OK d1: 200 https://d1.adhipk.dev/
+OK d1 health: 200 https://d1.adhipk.dev/health
+OK r2: 200 https://r2.adhipk.dev/
+OK r2 health: 200 https://r2.adhipk.dev/health
+OK cron: 200 https://cron.adhipk.dev/
 ```
