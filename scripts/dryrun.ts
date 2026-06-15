@@ -4,7 +4,7 @@ import path from "node:path";
 const [, , projectName, outputRoot = "projects"] = process.argv;
 
 if (!projectName) {
-  console.error("Usage: bun run deploy <project-name> [output-root]");
+  console.error("Usage: bun run dryrun <project-name> [output-root]");
   process.exit(1);
 }
 
@@ -17,7 +17,7 @@ if (!existsSync(configPath)) {
   process.exit(1);
 }
 
-const proc = Bun.spawn(["bunx", "wrangler", "deploy", "--config", configPath], {
+const proc = Bun.spawn(["bunx", "wrangler", "deploy", "--dry-run", "--config", configPath], {
   cwd: projectDir,
   stdout: "inherit",
   stderr: "inherit",
