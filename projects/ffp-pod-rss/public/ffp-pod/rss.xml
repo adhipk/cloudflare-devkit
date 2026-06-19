@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>From First Principles Research</title>
+    <link>https://ffppod.com/research</link>
+    <description>Research papers featured by From First Principles.</description>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 19 Jun 2026 06:50:00 GMT</lastBuildDate>
+    <atom:link href="https://api.adhipk.dev/ffp-pod/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Adversarial AI reveals mechanisms and treatments for disorders of consciousness</title>
+      <link>https://ffppod.com/research/adversarial-ai-reveals-mechanisms-and-treatments-for-disorders-of-consciousness</link>
+      <guid isPermaLink="true">https://ffppod.com/research/adversarial-ai-reveals-mechanisms-and-treatments-for-disorders-of-consciousness</guid>
+      <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Nature Neuroscience. An AI system learned to distinguish awake-brain and coma-brain patterns, then identified candidate mechanisms and possible stimulation targets.</description>
+    </item>
+    <item>
+      <title>Gene conversion empowers natural selection in a clonal fish species</title>
+      <link>https://ffppod.com/research/gene-conversion-empowers-natural-selection-in-a-clonal-fish-species</link>
+      <guid isPermaLink="true">https://ffppod.com/research/gene-conversion-empowers-natural-selection-in-a-clonal-fish-species</guid>
+      <pubDate>Wed, 11 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Nature. Research summary listed on the FFP research page.</description>
+    </item>
+    <item>
+      <title>The path to room-temperature superconductivity: A programmatic approach</title>
+      <link>https://ffppod.com/research/the-path-to-room-temperature-superconductivity-a-programmatic-approach</link>
+      <guid isPermaLink="true">https://ffppod.com/research/the-path-to-room-temperature-superconductivity-a-programmatic-approach</guid>
+      <pubDate>Mon, 09 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Proceedings of the National Academy of Sciences. A programmatic approach to prediction and engineering for room-temperature superconductivity.</description>
+    </item>
+    <item>
+      <title>Direct detection of an asteroid’s heliocentric deflection: The Didymos system after DART</title>
+      <link>https://ffppod.com/research/direct-detection-of-an-asteroids-heliocentric-deflection-the-didymos-system-after-dart</link>
+      <guid isPermaLink="true">https://ffppod.com/research/direct-detection-of-an-asteroids-heliocentric-deflection-the-didymos-system-after-dart</guid>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Science Advances. Measurements showing the DART impact nudged the Didymos asteroid system around the Sun.</description>
+    </item>
+    <item>
+      <title>The dynamics of AMPA receptors underlies the efficacy of ketamine in treatment resistant patients with depression</title>
+      <link>https://ffppod.com/research/the-dynamics-of-ampa-receptors-underlies-the-efficacy-of-ketamine-in-treatment-resistant-patients-with-depression</link>
+      <guid isPermaLink="true">https://ffppod.com/research/the-dynamics-of-ampa-receptors-underlies-the-efficacy-of-ketamine-in-treatment-resistant-patients-with-depression</guid>
+      <pubDate>Thu, 05 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Nature Astronomy. FFP summary connects ketamine response with AMPA receptor availability in treatment-resistant depression.</description>
+    </item>
+    <item>
+      <title>Bioremediation of lunar regolith simulant through mycorrhizal fungi and plant symbioses enables chickpea to seed</title>
+      <link>https://ffppod.com/research/bioremediation-of-lunar-regolith-simulant-through-mycorrhizal-fungi-and-plant-symbioses-enables-chickpea-to-seed</link>
+      <guid isPermaLink="true">https://ffppod.com/research/bioremediation-of-lunar-regolith-simulant-through-mycorrhizal-fungi-and-plant-symbioses-enables-chickpea-to-seed</guid>
+      <pubDate>Thu, 05 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Scientific Reports. Mycorrhizal fungi and vermicompost helped chickpeas grow and seed in lunar regolith simulant.</description>
+    </item>
+    <item>
+      <title>Bulk hexagonal diamond</title>
+      <link>https://ffppod.com/research/bulk-hexagonal-diamond</link>
+      <guid isPermaLink="true">https://ffppod.com/research/bulk-hexagonal-diamond</guid>
+      <pubDate>Wed, 04 Mar 2026 00:00:00 GMT</pubDate>
+      <description>Nature. Researchers made and characterized millimeter-scale hexagonal diamond.</description>
+    </item>
+  </channel>
+</rss>
