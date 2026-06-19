@@ -1,0 +1,1 @@
+{"name":"ffp-pod-rss","type":"module","scripts":{"dev":"wrangler dev","deploy":"wrangler deploy"},"devDependencies":{"wrangler":"latest"}}
