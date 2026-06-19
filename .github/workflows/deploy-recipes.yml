@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - recipes/**
+      - projects/ffp-pod-rss/**
       - .github/workflows/deploy-recipes.yml
   workflow_dispatch:
 
@@ -15,20 +16,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recipe:
-          - static-html
-          - hono-api
-          - hono-d1-api
-          - hono-r2-api
-          - cron-worker
+        target:
+          - recipes/static-html
+          - recipes/hono-api
+          - recipes/hono-d1-api
+          - recipes/hono-r2-api
+          - recipes/cron-worker
+          - projects/ffp-pod-rss
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - name: Install recipe dependencies
-        working-directory: recipes/${{ matrix.recipe }}
+      - name: Install target dependencies
+        working-directory: ${{ matrix.target }}
         run: bun install
       - name: Generate types
-        working-directory: recipes/${{ matrix.recipe }}
+        working-directory: ${{ matrix.target }}
         run: |
           if [ "$(bun pm pkg get scripts.types)" != "{}" ]; then
             bun run types
@@ -40,12 +42,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: recipes/${{ matrix.recipe }}
+          workingDirectory: ${{ matrix.target }}
           command: deploy --dry-run
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: recipes/${{ matrix.recipe }}
+          workingDirectory: ${{ matrix.target }}
           command: deploy
