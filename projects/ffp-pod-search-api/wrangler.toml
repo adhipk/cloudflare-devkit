@@ -1,0 +1,10 @@
+name = "ffp-pod-search-api"
+main = "src/index.ts"
+compatibility_date = "2026-06-18"
+
+routes = [
+  { pattern = "api.adhipk.dev/ffp-pod*", custom_domain = false }
+]
+
+[observability]
+enabled = true
