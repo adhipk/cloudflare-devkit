@@ -17,6 +17,8 @@ cron-worker      Scheduled Worker with a health endpoint
 ```bash
 bun install
 bun run list
+bun run create hono-api ../my-api --name my-api --domain api.example.com --workflow
+bun run workflow cloudflare-worker .github/workflows/deploy.yml
 bun run check
 bun run validate
 bun run test
@@ -35,6 +37,23 @@ bun run deploy recipes/hono-api
 ```
 
 The root deploy wrapper stages the target in a temp directory, installs dependencies there, and runs Wrangler from the staged copy so recipes stay clean.
+
+## Reuse In Other Projects
+
+Use this repo as a source of validated Cloudflare starters:
+
+```bash
+bun run create <recipe> <destination> --name <worker-name> [--domain <hostname>] [--workflow]
+```
+
+`create` copies a recipe, rewrites `package.json` and `wrangler.jsonc`, and removes the checked-in test route unless `--domain` is provided. See `docs/reuse.md`.
+
+Use it through `bunx` from GitHub when you only want to pull a recipe or workflow into another project:
+
+```bash
+bunx --bun github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
+bunx --bun github:adhipk/cloudflare-devkit workflow cloudflare-worker
+```
 
 ## GitHub Deploys
 

@@ -1,9 +1,27 @@
 {
   "name": "cloudflare-devkit",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "cloudflare-devkit": "bin/cloudflare-devkit.ts",
+    "cf-devkit": "bin/cloudflare-devkit.ts"
+  },
+  "files": [
+    "bin",
+    "docs",
+    "recipes/*/package.json",
+    "recipes/*/public/**",
+    "recipes/*/src/**",
+    "recipes/*/wrangler.jsonc",
+    "scripts",
+    "workflow-templates",
+    "README.md"
+  ],
   "scripts": {
     "list": "bun scripts/list.ts",
+    "create": "bun scripts/create.ts",
+    "workflow": "bun scripts/workflow.ts",
     "deploy": "bun scripts/deploy.ts",
     "dryrun": "bun scripts/dryrun.ts",
     "smoke": "bun scripts/smoke.ts",
