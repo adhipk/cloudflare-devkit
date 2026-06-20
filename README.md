@@ -1,6 +1,6 @@
 # Cloudflare Devkit
 
-Copyable Cloudflare recipe examples for common service shapes. Each recipe is a small, deployable directory with its own `package.json` and `wrangler.jsonc`.
+Copyable Cloudflare recipe examples and centralized GitHub Actions deployment wiring for common service shapes. Each recipe is a small, deployable directory with its own `package.json` and `wrangler.jsonc`.
 
 ## Recipes
 
@@ -49,17 +49,23 @@ bun run create <recipe> <destination> --name <worker-name> [--domain <hostname>]
 
 `create` copies a recipe, rewrites `package.json` and `wrangler.jsonc`, and removes the checked-in test route unless `--domain` is provided. See `docs/reuse.md`.
 
-Use it through `bunx` from GitHub when you only want to pull a recipe or workflow into another project:
+Use it through `bunx` from GitHub when you only want to pull a recipe, workflow caller, or deploy skill into another project:
 
 ```bash
-bunx adhipk/cloudflare-devkit#v0.1.1 create hono-api . --name my-api --workflow
-bunx adhipk/cloudflare-devkit#v0.1.1 workflow cloudflare-worker
-bunx adhipk/cloudflare-devkit#v0.1.1 skill deploy-cloudflare
+bunx adhipk/cloudflare-devkit#main create hono-api . --name my-api --workflow
+bunx adhipk/cloudflare-devkit#main workflow cloudflare-worker
+bunx adhipk/cloudflare-devkit#main skill deploy-cloudflare
 ```
 
-`skill deploy-cloudflare` installs a consumer skill at `.agents/skills/deploy-cloudflare` so agents in that repo know how to inspect Wrangler projects, add Cloudflare GitHub Actions, validate dry-runs, and avoid deploying without explicit approval.
+Generated workflows call the central reusable workflow in this repo:
 
-Use `#main` while iterating, and use version tags like `#v0.1.1` for stable consumers.
+```txt
+adhipk/cloudflare-devkit/.github/workflows/deploy-cloudflare-worker.yml@main
+```
+
+`skill deploy-cloudflare` installs a consumer skill at `.agents/skills/deploy-cloudflare` so agents in that repo know how to inspect Wrangler projects, add the centralized Cloudflare GitHub Actions caller, validate dry-runs, and avoid deploying without explicit approval.
+
+Use `#main` while iterating, and use version tags after release for stable consumers.
 
 The package bin is bundled at `dist/cloudflare-devkit.js`. Rebuild it after CLI changes:
 
@@ -69,7 +75,7 @@ bun run build:bin
 
 ## GitHub Deploys
 
-Pushes to `main` that change `recipes/**` run `.github/workflows/deploy-recipes.yml`, which deploys every checked-in recipe. Use `.github/workflows/deploy-project.yml` for manual one-off deploys of a specific recipe or project.
+Pushes to `main` that change `recipes/**` run `.github/workflows/deploy-recipes.yml`, which deploys every checked-in recipe through `.github/workflows/deploy-cloudflare-worker.yml`. Use `.github/workflows/deploy-project.yml` for manual one-off deploys of a specific recipe or project.
 
 ## Test Domains
 

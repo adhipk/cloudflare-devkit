@@ -6,12 +6,12 @@ on:
     paths:
       - recipes/**
       - .github/workflows/deploy-recipes.yml
+      - .github/workflows/deploy-cloudflare-worker.yml
   workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    environment: CloudFlare-personal
+    uses: ./.github/workflows/deploy-cloudflare-worker.yml
     strategy:
       fail-fast: false
       matrix:
@@ -21,31 +21,8 @@ jobs:
           - recipes/hono-d1-api
           - recipes/hono-r2-api
           - recipes/cron-worker
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - name: Install target dependencies
-        working-directory: ${{ matrix.target }}
-        run: bun install
-      - name: Generate types
-        working-directory: ${{ matrix.target }}
-        run: |
-          if [ "$(bun pm pkg get scripts.types)" != "{}" ]; then
-            bun run types
-          else
-            echo "No types script; skipping."
-          fi
-      - name: Dry run
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: ${{ matrix.target }}
-          command: deploy --dry-run
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: ${{ matrix.target }}
-          command: deploy
+    with:
+      target: ${{ matrix.target }}
+      deploy: true
+      environment: CloudFlare-personal
+    secrets: inherit

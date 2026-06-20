@@ -1,6 +1,36 @@
 # GitHub Actions deployment
 
-This repo supports three deployment modes.
+This repo is the central deployment workflow repository for Cloudflare Worker consumers. Consumer repositories should keep only a small caller workflow and let this repo own the install, type generation, Wrangler dry-run, and deploy steps.
+
+## Central reusable workflow
+
+The reusable workflow lives at:
+
+```txt
+.github/workflows/deploy-cloudflare-worker.yml
+```
+
+Consumer repositories call it with:
+
+```yaml
+jobs:
+  deploy:
+    uses: adhipk/cloudflare-devkit/.github/workflows/deploy-cloudflare-worker.yml@main
+    with:
+      target: "."
+      deploy: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+```
+
+Use `@main` while iterating. Use a version tag once the central workflow is released and consumers need stable behavior.
+
+The central workflow uses the official Cloudflare Wrangler Action:
+
+```txt
+cloudflare/wrangler-action@v4.0.0
+```
 
 ## Automatic recipe deploys
 
@@ -36,6 +66,8 @@ target: recipes/hono-api
 command: deploy
 ```
 
+The `deploy` mode runs a dry-run first, then deploys only if that succeeds.
+
 The workflow accepts any checked-in recipe or project directory that contains `package.json` and `wrangler.jsonc`, for example:
 
 ```txt
@@ -44,27 +76,28 @@ recipes/hono-api
 projects/hello-worker
 ```
 
-## Standalone project deploys
+## Consumer project deploys
 
-Copy this file into a generated repo:
+Generate a caller workflow into a consumer repo:
 
 ```txt
-workflow-templates/cloudflare-worker.yml
+bunx adhipk/cloudflare-devkit#main workflow cloudflare-worker --target .
 ```
 
-Place it at:
+For a monorepo target:
 
 ```txt
-.github/workflows/deploy.yml
+bunx adhipk/cloudflare-devkit#main workflow cloudflare-worker --target apps/api --name deploy-api
 ```
 
-It will:
+That writes `.github/workflows/deploy.yml` by default. The generated workflow:
 
 ```txt
-1. install Bun dependencies
-2. run types if present
-3. run wrangler deploy --dry-run
-4. deploy on push to main
+1. triggers on push to main and workflow_dispatch
+2. path-filters to the target directory for monorepo targets
+3. calls the central reusable workflow in this repo
+4. dry-runs on every run
+5. deploys only on pushes to main
 ```
 
 ## Required GitHub secrets

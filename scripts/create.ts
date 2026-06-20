@@ -133,7 +133,7 @@ function printUsage(commandName: string) {
   console.error("  --name <worker-name>        Worker name for wrangler.jsonc");
   console.error("  --package-name <name>       package.json name; defaults to --name");
   console.error("  --domain <hostname>         Add a custom domain route");
-  console.error("  --workflow                  Copy the standalone GitHub Actions deploy workflow");
+  console.error("  --workflow                  Copy the GitHub Actions caller workflow");
 }
 
 function resolveRecipe(recipe: string) {

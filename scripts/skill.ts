@@ -175,18 +175,24 @@ Use this skill to make a repository deployable to Cloudflare Workers with cloudf
 2. If there is no Worker yet, generate one from a recipe:
 
    \`\`\`bash
-   bunx adhipk/cloudflare-devkit create hono-api apps/my-api --name my-api --workflow
+   bunx adhipk/cloudflare-devkit#main create hono-api apps/my-api --name my-api --workflow
    \`\`\`
 
    Pick the closest recipe: static-html, hono-api, hono-d1-api, hono-r2-api, or cron-worker.
 
-3. If the Worker exists but CI is missing, generate only the workflow:
+3. If the Worker exists but CI is missing, generate only the workflow caller:
 
    \`\`\`bash
-   bunx adhipk/cloudflare-devkit workflow cloudflare-worker --target apps/my-api
+   bunx adhipk/cloudflare-devkit#main workflow cloudflare-worker --target apps/my-api
    \`\`\`
 
-   Use --target . or omit --target for a root Worker. Use --environment <name> only when the repo uses GitHub Environments.
+   Use --target . or omit --target for a root Worker. Use --environment <name> only when the repo uses GitHub Environments. The generated workflow should call:
+
+   \`\`\`txt
+   adhipk/cloudflare-devkit/.github/workflows/deploy-cloudflare-worker.yml@main
+   \`\`\`
+
+   If the repo requires stable central workflow behavior, regenerate with --devkit-ref <version-tag>.
 
 4. Confirm required GitHub secrets are documented for the target repo:
 
@@ -217,7 +223,8 @@ Use this skill to make a repository deployable to Cloudflare Workers with cloudf
 
 - Do not add custom domains unless the user provides a hostname or the repo already has one configured.
 - Do not overwrite existing workflows or skills without checking whether --force is appropriate.
-- Prefer bunx adhipk/cloudflare-devkit workflow ... over hand-writing GitHub Actions YAML.
+- Prefer bunx adhipk/cloudflare-devkit#main workflow ... over hand-writing GitHub Actions YAML.
+- Keep Cloudflare deployment mechanics centralized in adhipk/cloudflare-devkit/.github/workflows/deploy-cloudflare-worker.yml; consumer repos should carry only caller workflows.
 - Keep generated deployment files scoped to the Worker target; for monorepos, use --target <directory>.
 - If bunx adhipk/cloudflare-devkit fails with 404, verify the repo spelling is cloudflare-devkit.
 `;

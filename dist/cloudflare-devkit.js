@@ -130,7 +130,7 @@ function printUsage(commandName) {
   console.error("  --name <worker-name>        Worker name for wrangler.jsonc");
   console.error("  --package-name <name>       package.json name; defaults to --name");
   console.error("  --domain <hostname>         Add a custom domain route");
-  console.error("  --workflow                  Copy the standalone GitHub Actions deploy workflow");
+  console.error("  --workflow                  Copy the GitHub Actions caller workflow");
 }
 function resolveRecipe(recipe) {
   const candidates = [
@@ -360,18 +360,24 @@ Use this skill to make a repository deployable to Cloudflare Workers with cloudf
 2. If there is no Worker yet, generate one from a recipe:
 
    \`\`\`bash
-   bunx adhipk/cloudflare-devkit create hono-api apps/my-api --name my-api --workflow
+   bunx adhipk/cloudflare-devkit#main create hono-api apps/my-api --name my-api --workflow
    \`\`\`
 
    Pick the closest recipe: static-html, hono-api, hono-d1-api, hono-r2-api, or cron-worker.
 
-3. If the Worker exists but CI is missing, generate only the workflow:
+3. If the Worker exists but CI is missing, generate only the workflow caller:
 
    \`\`\`bash
-   bunx adhipk/cloudflare-devkit workflow cloudflare-worker --target apps/my-api
+   bunx adhipk/cloudflare-devkit#main workflow cloudflare-worker --target apps/my-api
    \`\`\`
 
-   Use --target . or omit --target for a root Worker. Use --environment <name> only when the repo uses GitHub Environments.
+   Use --target . or omit --target for a root Worker. Use --environment <name> only when the repo uses GitHub Environments. The generated workflow should call:
+
+   \`\`\`txt
+   adhipk/cloudflare-devkit/.github/workflows/deploy-cloudflare-worker.yml@main
+   \`\`\`
+
+   If the repo requires stable central workflow behavior, regenerate with --devkit-ref <version-tag>.
 
 4. Confirm required GitHub secrets are documented for the target repo:
 
@@ -402,7 +408,8 @@ Use this skill to make a repository deployable to Cloudflare Workers with cloudf
 
 - Do not add custom domains unless the user provides a hostname or the repo already has one configured.
 - Do not overwrite existing workflows or skills without checking whether --force is appropriate.
-- Prefer bunx adhipk/cloudflare-devkit workflow ... over hand-writing GitHub Actions YAML.
+- Prefer bunx adhipk/cloudflare-devkit#main workflow ... over hand-writing GitHub Actions YAML.
+- Keep Cloudflare deployment mechanics centralized in adhipk/cloudflare-devkit/.github/workflows/deploy-cloudflare-worker.yml; consumer repos should carry only caller workflows.
 - Keep generated deployment files scoped to the Worker target; for monorepos, use --target <directory>.
 - If bunx adhipk/cloudflare-devkit fails with 404, verify the repo spelling is cloudflare-devkit.
 `;
@@ -449,6 +456,8 @@ function parseArgs3(args, commandName) {
     target: ".",
     apiTokenSecret: "CLOUDFLARE_API_TOKEN",
     accountIdSecret: "CLOUDFLARE_ACCOUNT_ID",
+    devkitRepo: "adhipk/cloudflare-devkit",
+    devkitRef: "main",
     force: false,
     print: false
   };
@@ -497,6 +506,16 @@ function parseArgs3(args, commandName) {
       index += 1;
       continue;
     }
+    if (arg === "--devkit-repo") {
+      parsed.devkitRepo = readOptionValue2(args, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--devkit-ref") {
+      parsed.devkitRef = readOptionValue2(args, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg.startsWith("--")) {
       console.error(`Unknown option: ${arg}`);
       process.exit(1);
@@ -526,6 +545,7 @@ function printUsage3(commandName) {
   console.error(`  ${commandName} cloudflare-worker .github/workflows/deploy.yml`);
   console.error(`  ${commandName} cloudflare-worker --target apps/api --name deploy-api`);
   console.error(`  ${commandName} cloudflare-worker --target apps/api --environment production --print`);
+  console.error(`  ${commandName} cloudflare-worker --devkit-ref v1.0.0 --force`);
   console.error("");
   console.error("Options:");
   console.error("  --name <workflow-name>         Workflow display name; defaults to deploy");
@@ -534,6 +554,8 @@ function printUsage3(commandName) {
   console.error("  --environment <name>           GitHub environment name");
   console.error("  --api-token-secret <name>      API token secret; defaults to CLOUDFLARE_API_TOKEN");
   console.error("  --account-id-secret <name>     Account ID secret; defaults to CLOUDFLARE_ACCOUNT_ID");
+  console.error("  --devkit-repo <owner/repo>     Reusable workflow repo; defaults to adhipk/cloudflare-devkit");
+  console.error("  --devkit-ref <ref>             Reusable workflow ref; defaults to main");
   console.error("  --print                        Print the workflow instead of writing it");
   console.error("  --force                        Overwrite the destination if it exists");
   console.error("");
@@ -565,6 +587,7 @@ function renderCloudflareWorkerWorkflow(options, destinationPath) {
   const target = normalizeTarget(options.target);
   const usesTargetDirectory = target !== ".";
   const workflowPath = workflowTriggerPath(destinationPath);
+  const reusableWorkflow = `${options.devkitRepo}/.github/workflows/deploy-cloudflare-worker.yml@${options.devkitRef}`;
   const lines = [];
   lines.push(`name: ${yamlString(options.name)}`);
   lines.push("");
@@ -580,47 +603,16 @@ function renderCloudflareWorkerWorkflow(options, destinationPath) {
   lines.push("");
   lines.push("jobs:");
   lines.push("  deploy:");
-  lines.push("    runs-on: ubuntu-latest");
+  lines.push(`    uses: ${reusableWorkflow}`);
+  lines.push("    with:");
+  lines.push(`      target: ${yamlString(target)}`);
   if (options.environment) {
-    lines.push(`    environment: ${yamlString(options.environment)}`);
+    lines.push(`      environment: ${yamlString(options.environment)}`);
   }
-  lines.push("    steps:");
-  lines.push("      - uses: actions/checkout@v4");
-  lines.push("      - uses: oven-sh/setup-bun@v2");
-  lines.push("      - name: Install dependencies");
-  if (usesTargetDirectory) {
-    lines.push(`        working-directory: ${yamlString(target)}`);
-  }
-  lines.push("        run: bun install");
-  lines.push("      - name: Generate types");
-  if (usesTargetDirectory) {
-    lines.push(`        working-directory: ${yamlString(target)}`);
-  }
-  lines.push("        run: |");
-  lines.push('          if [ "$(bun pm pkg get scripts.types)" != "{}" ]; then');
-  lines.push("            bun run types");
-  lines.push("          else");
-  lines.push('            echo "No types script; skipping."');
-  lines.push("          fi");
-  lines.push("      - name: Dry run");
-  lines.push("        uses: cloudflare/wrangler-action@v3");
-  lines.push("        with:");
-  lines.push(`          apiToken: \${{ secrets.${options.apiTokenSecret} }}`);
-  lines.push(`          accountId: \${{ secrets.${options.accountIdSecret} }}`);
-  if (usesTargetDirectory) {
-    lines.push(`          workingDirectory: ${target}`);
-  }
-  lines.push("          command: deploy --dry-run");
-  lines.push("      - name: Deploy");
-  lines.push(`        if: github.ref == 'refs/heads/${options.branch}' && github.event_name == 'push'`);
-  lines.push("        uses: cloudflare/wrangler-action@v3");
-  lines.push("        with:");
-  lines.push(`          apiToken: \${{ secrets.${options.apiTokenSecret} }}`);
-  lines.push(`          accountId: \${{ secrets.${options.accountIdSecret} }}`);
-  if (usesTargetDirectory) {
-    lines.push(`          workingDirectory: ${target}`);
-  }
-  lines.push("          command: deploy");
+  lines.push(`      deploy: \${{ github.ref == 'refs/heads/${options.branch}' && github.event_name == 'push' }}`);
+  lines.push("    secrets:");
+  lines.push(`      CLOUDFLARE_API_TOKEN: \${{ secrets.${options.apiTokenSecret} }}`);
+  lines.push(`      CLOUDFLARE_ACCOUNT_ID: \${{ secrets.${options.accountIdSecret} }}`);
   lines.push("");
   return lines.join(`
 `);
