@@ -19,6 +19,7 @@ bun install
 bun run list
 bun run create hono-api ../my-api --name my-api --domain api.example.com --workflow
 bun run workflow cloudflare-worker .github/workflows/deploy.yml
+bun run skill deploy-cloudflare ../my-api
 bun run check
 bun run validate
 bun run test
@@ -53,7 +54,10 @@ Use it through `bunx` from GitHub when you only want to pull a recipe or workflo
 ```bash
 bunx github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
 bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker
+bunx github:adhipk/cloudflare-devkit skill deploy-cloudflare
 ```
+
+`skill deploy-cloudflare` installs a consumer skill at `.agents/skills/deploy-cloudflare` so agents in that repo know how to inspect Wrangler projects, add Cloudflare GitHub Actions, validate dry-runs, and avoid deploying without explicit approval.
 
 The package bin is bundled at `dist/cloudflare-devkit.js`. Rebuild it after CLI changes:
 

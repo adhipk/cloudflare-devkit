@@ -70,6 +70,31 @@ To choose another destination or overwrite an existing file:
 bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker .github/workflows/cloudflare.yml --force
 ```
 
+## Install the consumer skill
+
+Install the `deploy-cloudflare` skill into another repo:
+
+```bash
+bunx github:adhipk/cloudflare-devkit skill deploy-cloudflare
+```
+
+That writes:
+
+```txt
+.agents/skills/deploy-cloudflare/SKILL.md
+.agents/skills/deploy-cloudflare/agents/openai.yaml
+```
+
+Install it into a different project directory:
+
+```bash
+bunx github:adhipk/cloudflare-devkit skill deploy-cloudflare ../my-repo
+```
+
+Use `--force` only when replacing an existing local copy.
+
+The skill tells future agents how to add Cloudflare GitHub Actions, check Wrangler targets, document required GitHub secrets, and dry-run before deploy.
+
 ## Bin bundle
 
 The executable package entrypoint is the bundled file:

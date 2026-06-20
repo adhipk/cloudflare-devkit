@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deploy Cloudflare"
+  short_description: "Deploy Cloudflare Workers from this repo"
+  default_prompt: "Use $deploy-cloudflare to set up and validate Cloudflare deployment for this repo."

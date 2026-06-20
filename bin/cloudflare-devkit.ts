@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import { runCreate } from "../scripts/create.ts";
+import { runSkill } from "../scripts/skill.ts";
 import { runWorkflow } from "../scripts/workflow.ts";
 
 const [command, ...args] = process.argv.slice(2);
@@ -16,6 +17,9 @@ switch (command) {
     break;
   case "workflow":
     await runWorkflow(args, { commandName: "cloudflare-devkit workflow" });
+    break;
+  case "skill":
+    await runSkill(args, { commandName: "cloudflare-devkit skill" });
     break;
   case "list":
     await import("../scripts/list.ts");
@@ -34,8 +38,10 @@ function printUsage() {
   console.error("  list       List available recipes and projects");
   console.error("  create     Create a project from a recipe");
   console.error("  workflow   Copy a GitHub Actions workflow template");
+  console.error("  skill      Install a consumer skill into .agents/skills");
   console.error("");
   console.error("Examples:");
   console.error("  cloudflare-devkit create hono-api . --name my-api --workflow");
   console.error("  cloudflare-devkit workflow cloudflare-worker");
+  console.error("  cloudflare-devkit skill deploy-cloudflare");
 }

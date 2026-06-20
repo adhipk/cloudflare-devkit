@@ -197,7 +197,7 @@ async function renderWorkflow(templateName: string, options: WorkflowOptions, de
 function renderCloudflareWorkerWorkflow(options: WorkflowOptions, destinationPath: string) {
   const target = normalizeTarget(options.target);
   const usesTargetDirectory = target !== ".";
-  const workflowPath = path.relative(process.cwd(), destinationPath);
+  const workflowPath = workflowTriggerPath(destinationPath);
   const lines: string[] = [];
 
   lines.push(`name: ${yamlString(options.name)}`);
@@ -285,4 +285,12 @@ function normalizeTarget(target: string) {
 
 function yamlString(value: string) {
   return JSON.stringify(value);
+}
+
+function workflowTriggerPath(destinationPath: string) {
+  const relativePath = path.relative(process.cwd(), destinationPath).replace(/\\/g, "/");
+  if (relativePath.startsWith("../") || relativePath === "..") {
+    return `.github/workflows/${path.basename(destinationPath)}`;
+  }
+  return relativePath;
 }
