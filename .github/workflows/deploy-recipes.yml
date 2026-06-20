@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - recipes/**
-      - projects/ffp-pod-rss/**
       - .github/workflows/deploy-recipes.yml
   workflow_dispatch:
 
@@ -22,7 +21,6 @@ jobs:
           - recipes/hono-d1-api
           - recipes/hono-r2-api
           - recipes/cron-worker
-          - projects/ffp-pod-rss
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
