@@ -1,10 +1,11 @@
 import { existsSync } from "node:fs";
-import { copyFile, mkdir, readdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const repoRoot = path.resolve(new URL("..", import.meta.url).pathname);
 const skillTemplatesDir = path.join(repoRoot, "skill-templates");
 const defaultSkill = "deploy-cloudflare";
+const builtInSkills = new Set([defaultSkill]);
 
 type SkillOptions = {
   skill: string;
@@ -19,7 +20,7 @@ if (import.meta.main) {
 export async function runSkill(args: string[], context: { commandName?: string } = {}) {
   const commandName = context.commandName ?? "cloudflare-devkit skill";
   const options = parseArgs(args, commandName);
-  const sourceDir = await resolveSkill(options.skill);
+  const source = await resolveSkill(options.skill);
   const projectDir = path.resolve(process.cwd(), options.projectDir);
   const destinationDir = path.join(projectDir, ".agents", "skills", options.skill);
 
@@ -29,7 +30,11 @@ export async function runSkill(args: string[], context: { commandName?: string }
     process.exit(1);
   }
 
-  await copyDirectory(sourceDir, destinationDir);
+  if (source.kind === "directory") {
+    await copyDirectory(source.dir, destinationDir);
+  } else {
+    await writeBuiltInSkill(source.skill, destinationDir);
+  }
 
   console.log(`Installed ${options.skill} skill at ${destinationDir}`);
 }
@@ -94,7 +99,11 @@ async function resolveSkill(skill: string) {
   const sourceDir = path.join(skillTemplatesDir, skill);
 
   if (existsSync(path.join(sourceDir, "SKILL.md"))) {
-    return sourceDir;
+    return { kind: "directory" as const, dir: sourceDir };
+  }
+
+  if (builtInSkills.has(skill)) {
+    return { kind: "builtin" as const, skill };
   }
 
   const skills = await listSkills();
@@ -106,16 +115,18 @@ async function resolveSkill(skill: string) {
 }
 
 function isKnownSkill(value: string) {
-  return existsSync(path.join(skillTemplatesDir, value, "SKILL.md"));
+  return builtInSkills.has(value) || existsSync(path.join(skillTemplatesDir, value, "SKILL.md"));
 }
 
 async function listSkills() {
   if (!existsSync(skillTemplatesDir)) return [];
 
-  return (await readdir(skillTemplatesDir, { withFileTypes: true }))
+  const fileSkills = (await readdir(skillTemplatesDir, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory() && existsSync(path.join(skillTemplatesDir, entry.name, "SKILL.md")))
     .map((entry) => entry.name)
     .sort();
+
+  return Array.from(new Set([...builtInSkills, ...fileSkills])).sort();
 }
 
 async function copyDirectory(sourceDir: string, targetDir: string) {
@@ -133,3 +144,86 @@ async function copyDirectory(sourceDir: string, targetDir: string) {
     }
   }
 }
+
+async function writeBuiltInSkill(skill: string, targetDir: string) {
+  if (skill !== defaultSkill) {
+    console.error(`No built-in skill writer for: ${skill}`);
+    process.exit(1);
+  }
+
+  await mkdir(path.join(targetDir, "agents"), { recursive: true });
+  await writeFile(path.join(targetDir, "SKILL.md"), deployCloudflareSkillMarkdown);
+  await writeFile(path.join(targetDir, "agents", "openai.yaml"), deployCloudflareOpenAiYaml);
+}
+
+const deployCloudflareSkillMarkdown = String.raw`---
+name: deploy-cloudflare
+description: Set up, validate, and operate Cloudflare Worker deployments from a consumer repository. Use when asked to add Cloudflare deployment, generate GitHub Actions for Wrangler deploys, create a Worker from cloudflare-devkit recipes, dry-run or deploy a Worker, troubleshoot missing Wrangler config or GitHub secrets, or prepare a repo for Cloudflare CI/CD.
+---
+
+# Deploy Cloudflare
+
+Use this skill to make a repository deployable to Cloudflare Workers with cloudflare-devkit conventions.
+
+## Workflow
+
+1. Inspect the repo before editing:
+   - Find Worker targets with rg --files -g 'wrangler.*' -g 'package.json'.
+   - Identify whether the Worker is at repo root or in a subdirectory.
+   - Check existing .github/workflows/ and .agents/skills/ before adding files.
+
+2. If there is no Worker yet, generate one from a recipe:
+
+   \`\`\`bash
+   bunx adhipk/cloudflare-devkit create hono-api apps/my-api --name my-api --workflow
+   \`\`\`
+
+   Pick the closest recipe: static-html, hono-api, hono-d1-api, hono-r2-api, or cron-worker.
+
+3. If the Worker exists but CI is missing, generate only the workflow:
+
+   \`\`\`bash
+   bunx adhipk/cloudflare-devkit workflow cloudflare-worker --target apps/my-api
+   \`\`\`
+
+   Use --target . or omit --target for a root Worker. Use --environment <name> only when the repo uses GitHub Environments.
+
+4. Confirm required GitHub secrets are documented for the target repo:
+
+   \`\`\`txt
+   CLOUDFLARE_API_TOKEN
+   CLOUDFLARE_ACCOUNT_ID
+   \`\`\`
+
+   Do not print, invent, or commit secret values.
+
+5. Validate locally before claiming the deployment path works:
+
+   \`\`\`bash
+   bun install
+   bun run types
+   bunx wrangler deploy --dry-run
+   \`\`\`
+
+   If scripts.types is absent, skip bun run types. For subdirectory Workers, run these commands from that subdirectory.
+
+6. Deploy only when explicitly asked:
+
+   \`\`\`bash
+   bunx wrangler deploy
+   \`\`\`
+
+## Guardrails
+
+- Do not add custom domains unless the user provides a hostname or the repo already has one configured.
+- Do not overwrite existing workflows or skills without checking whether --force is appropriate.
+- Prefer bunx adhipk/cloudflare-devkit workflow ... over hand-writing GitHub Actions YAML.
+- Keep generated deployment files scoped to the Worker target; for monorepos, use --target <directory>.
+- If bunx adhipk/cloudflare-devkit fails with 404, verify the repo spelling is cloudflare-devkit.
+`;
+
+const deployCloudflareOpenAiYaml = String.raw`interface:
+  display_name: "Deploy Cloudflare"
+  short_description: "Deploy Cloudflare Workers from this repo"
+  default_prompt: "Use $deploy-cloudflare to set up and validate Cloudflare deployment for this repo."
+`;

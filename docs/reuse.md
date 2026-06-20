@@ -49,13 +49,13 @@ The destination must be missing or empty. Generated projects intentionally do no
 From another project, use this repo directly from GitHub:
 
 ```bash
-bunx github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
+bunx adhipk/cloudflare-devkit#v0.1.1 create hono-api . --name my-api --workflow
 ```
 
 Pull only the standalone GitHub Actions workflow:
 
 ```bash
-bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker
+bunx adhipk/cloudflare-devkit#v0.1.1 workflow cloudflare-worker
 ```
 
 That writes:
@@ -67,7 +67,7 @@ That writes:
 To choose another destination or overwrite an existing file:
 
 ```bash
-bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker .github/workflows/cloudflare.yml --force
+bunx adhipk/cloudflare-devkit#v0.1.1 workflow cloudflare-worker .github/workflows/cloudflare.yml --force
 ```
 
 ## Install the consumer skill
@@ -75,7 +75,7 @@ bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker .github/workflow
 Install the `deploy-cloudflare` skill into another repo:
 
 ```bash
-bunx github:adhipk/cloudflare-devkit skill deploy-cloudflare
+bunx adhipk/cloudflare-devkit#v0.1.1 skill deploy-cloudflare
 ```
 
 That writes:
@@ -88,12 +88,14 @@ That writes:
 Install it into a different project directory:
 
 ```bash
-bunx github:adhipk/cloudflare-devkit skill deploy-cloudflare ../my-repo
+bunx adhipk/cloudflare-devkit#v0.1.1 skill deploy-cloudflare ../my-repo
 ```
 
 Use `--force` only when replacing an existing local copy.
 
 The skill tells future agents how to add Cloudflare GitHub Actions, check Wrangler targets, document required GitHub secrets, and dry-run before deploy.
+
+Use `#main` for active development and version tags like `#v0.1.1` for repeatable consumer installs. Unpinned GitHub `bunx` specs can reuse cached tarballs.
 
 ## Bin bundle
 
