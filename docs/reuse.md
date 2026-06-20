@@ -49,13 +49,13 @@ The destination must be missing or empty. Generated projects intentionally do no
 From another project, use this repo directly from GitHub:
 
 ```bash
-bunx --bun github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
+bunx github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
 ```
 
 Pull only the standalone GitHub Actions workflow:
 
 ```bash
-bunx --bun github:adhipk/cloudflare-devkit workflow cloudflare-worker
+bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker
 ```
 
 That writes:
@@ -67,7 +67,21 @@ That writes:
 To choose another destination or overwrite an existing file:
 
 ```bash
-bunx --bun github:adhipk/cloudflare-devkit workflow cloudflare-worker .github/workflows/cloudflare.yml --force
+bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker .github/workflows/cloudflare.yml --force
+```
+
+## Bin bundle
+
+The executable package entrypoint is the bundled file:
+
+```txt
+dist/cloudflare-devkit.js
+```
+
+After changing CLI code in `bin/` or `scripts/`, rebuild it:
+
+```bash
+bun run build:bin
 ```
 
 ## Recommended organization

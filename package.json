@@ -4,21 +4,21 @@
   "private": true,
   "type": "module",
   "bin": {
-    "cloudflare-devkit": "bin/cloudflare-devkit.ts",
-    "cf-devkit": "bin/cloudflare-devkit.ts"
+    "cloudflare-devkit": "dist/cloudflare-devkit.js",
+    "cf-devkit": "dist/cloudflare-devkit.js"
   },
   "files": [
-    "bin",
+    "dist",
     "docs",
     "recipes/*/package.json",
     "recipes/*/public/**",
     "recipes/*/src/**",
     "recipes/*/wrangler.jsonc",
-    "scripts",
     "workflow-templates",
     "README.md"
   ],
   "scripts": {
+    "build:bin": "bun build bin/cloudflare-devkit.ts --target bun --outfile dist/cloudflare-devkit.js",
     "list": "bun scripts/list.ts",
     "create": "bun scripts/create.ts",
     "workflow": "bun scripts/workflow.ts",
@@ -27,7 +27,7 @@
     "smoke": "bun scripts/smoke.ts",
     "check": "bun scripts/check.ts",
     "validate": "bun scripts/validate.ts",
-    "test": "bun run check && bun run validate"
+    "test": "bun run build:bin && bun run check && bun run validate"
   },
   "devDependencies": {
     "@types/bun": "latest"

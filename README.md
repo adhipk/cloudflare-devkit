@@ -51,8 +51,14 @@ bun run create <recipe> <destination> --name <worker-name> [--domain <hostname>]
 Use it through `bunx` from GitHub when you only want to pull a recipe or workflow into another project:
 
 ```bash
-bunx --bun github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
-bunx --bun github:adhipk/cloudflare-devkit workflow cloudflare-worker
+bunx github:adhipk/cloudflare-devkit create hono-api . --name my-api --workflow
+bunx github:adhipk/cloudflare-devkit workflow cloudflare-worker
+```
+
+The package bin is bundled at `dist/cloudflare-devkit.js`. Rebuild it after CLI changes:
+
+```bash
+bun run build:bin
 ```
 
 ## GitHub Deploys
